@@ -1,4 +1,4 @@
-from schemas import FarmRequest
+from schemas import PredictionRequest
 
 def get_recommendation(level: str) -> str:
     """
@@ -13,7 +13,7 @@ def get_recommendation(level: str) -> str:
 
     return "Высокий риск. Требуется ручное рассмотрение"
 
-def calculate_risk(data: FarmRequest) -> float:
+def calculate_risk(data: PredictionRequest) -> float:
     """
     Реализует простую логику оценки риска по финансовым показателям
     и отраслевым факторам.

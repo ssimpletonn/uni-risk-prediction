@@ -1,8 +1,9 @@
 import logging
 
 from fastapi import (
-    FastAPI,
+    FastAPI
 )
+from fastapi.responses import RedirectResponse
 from middleware import add_process_time
 from routers import predictions, model, health
 
@@ -26,6 +27,10 @@ app.middleware("http")(add_process_time)
 app.include_router(predictions.router)
 app.include_router(health.router)
 app.include_router(model.router)
+
+@app.get("/", include_in_schema=False)
+def root():
+    return RedirectResponse(url="/docs")
 
 if __name__ == "__main__":
     import uvicorn

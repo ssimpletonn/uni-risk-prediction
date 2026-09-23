@@ -2,17 +2,17 @@ from fastapi import APIRouter, status, HTTPException, Query
 import logging
 import uuid
 
-from schemas.farm import PredictionResponse
+from schemas.farm import PredictionResponse, PredictionsResponse
 from storage import predictions
 from typing import Optional, List
 
-router = APIRouter()
+router = APIRouter(tags=['predictions'])
 
 logger = logging.getLogger(__name__)
 
 @router.get(
     "/predictions",
-    response_model=List[PredictionResponse],
+    response_model=PredictionsResponse,
     summary="Получить список прогнозов",
     description=(
             "Возвращает список выполненных прогнозов. "
@@ -21,14 +21,16 @@ logger = logging.getLogger(__name__)
     )
 )
 def get_predictions(
-
+        offset: int = Query(
+            default=0,
+            description="Отступ для пагинации"
+        ),
         limit: int = Query(
             default=10,
             ge=1,
             le=100,
             description="Максимальное количество результатов"
         ),
-
         risk_level: Optional[str] = Query(
             default=None,
             description=(
@@ -69,13 +71,14 @@ def get_predictions(
         values = [
             item
             for item in values
-            if item["risk_level"] == risk_level
+            if item.risk_level == risk_level
         ]
 
-    # Ограничение количества результатов
-
-    return values[:limit]
-
+    return PredictionsResponse(
+        limit=limit,
+        offset=offset,
+        predictions=values[offset:offset+limit]
+    )
 
 @router.get(
     "/predictions/{request_id}",

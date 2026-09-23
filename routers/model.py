@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, HTTPException
 from schemas import (
     ModelInfoResponse, PredictionResponse,
-    FarmRequest
+    PredictionRequest
 )
 import uuid
 import logging
@@ -12,7 +12,7 @@ from storage import predictions
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter()
+router = APIRouter(tags=['model'])
 
 @router.post(
     "/predict",
@@ -25,7 +25,7 @@ router = APIRouter()
             "и возвращает оценку риска."
     )
 )
-def predict(request: FarmRequest):
+def predict(request: PredictionRequest):
     """
     Основной endpoint сервиса.
     """

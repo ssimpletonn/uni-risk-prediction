@@ -1,10 +1,11 @@
-from .farm import FarmRequest, PredictionResponse
+from .farm import PredictionRequest, PredictionResponse, PredictionsResponse
 from .health import HealthResponse
 from .model import ModelInfoResponse
 
 __all__ = [
-    "FarmRequest",
+    "PredictionRequest",
     "PredictionResponse",
     "HealthResponse",
     "ModelInfoResponse",
+    "PredictionsResponse",
 ]

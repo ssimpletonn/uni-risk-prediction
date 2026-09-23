@@ -1,6 +1,14 @@
 from pydantic import BaseModel, Field
+from enum import Enum
+from typing import List
 
-class FarmRequest(BaseModel):
+class RegionEnum(str, Enum):
+    Krasnodar = "Krasnodar",
+    Rostov = "Rostov",
+    Stavropol = "Stavropol"
+
+
+class PredictionRequest(BaseModel):
     """
     Данные сельскохозяйственного предприятия,
     которые клиент передает в POST /predict
@@ -12,9 +20,8 @@ class FarmRequest(BaseModel):
         description="Идентификатор хозяйства"
     )
 
-    region: str = Field(
+    region: RegionEnum = Field(
         ...,
-        min_length=1,
         description="Регион хозяйства"
     )
 
@@ -63,7 +70,7 @@ class FarmRequest(BaseModel):
 
 class PredictionResponse(BaseModel):
     """
-    Структура ответа сервиса после выполнения прогноза.
+    Структура предсказания.
     """
 
     request_id: str
@@ -72,3 +79,11 @@ class PredictionResponse(BaseModel):
     risk_level: str
     recommendation: str
     model_version: str
+
+class PredictionsResponse(BaseModel):
+    """
+
+    """
+    limit: int
+    offset: int
+    predictions: List[PredictionResponse]

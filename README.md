@@ -3,7 +3,7 @@
 ## Запуск 
 uv
 ```bash
-uv sink
+uv sync
 uv run uvicorn main:app --reload
 ```
 

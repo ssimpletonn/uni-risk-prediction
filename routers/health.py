@@ -11,6 +11,4 @@ router = APIRouter(tags=["health"])
     summary="Проверка состояния API",
 )
 async def health():
-    return {
-        "status": "ok",
-    }
+    return HealthResponse(status="ok")

@@ -13,6 +13,7 @@ from config import LLM_TIMEOUT_SECONDS
 from db.connection import init_db
 from exceptions import register_exception_handlers
 from middleware import request_context_middleware
+from schemas import RootResponse
 from routers import (
     demo,
     health,
@@ -95,13 +96,17 @@ app.include_router(predictions.router)
 app.include_router(demo.router)
 
 
-@app.get("/", include_in_schema=False)
+@app.get(
+    "/",
+    response_model=RootResponse,
+    include_in_schema=False,
+)
 async def root():
-    return {
-        "message": "Agro Scoring API is running",
-        "docs": "/docs",
-        "health": "/health",
-    }
+    return RootResponse(
+        message="Agro Scoring API is running",
+        docs="/docs",
+        health="/health",
+    )
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Query
 
+from schemas import SeedResponse
 from services.demo import seed_weekday_predictions
 
 router = APIRouter(tags=["demo"])
@@ -7,6 +8,7 @@ router = APIRouter(tags=["demo"])
 
 @router.post(
     "/demo/seed-weekdays",
+    response_model=SeedResponse,
     summary="Создать демонстрационные predictions за разные дни",
 )
 async def seed_demo_weekdays(
@@ -28,11 +30,11 @@ async def seed_demo_weekdays(
         count=count
     )
 
-    return {
-        "status": "ok",
-        "created": created,
-        "message": (
+    return SeedResponse(
+        status="ok",
+        created=created,
+        message=(
             "Demo predictions created. "
             "Use /predictions/by-weekday for pagination."
         ),
-    }
+    )

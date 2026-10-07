@@ -4,6 +4,7 @@ import time
 import httpx
 from fastapi import HTTPException, status
 
+from schemas import LLMChatResponse, PredictionResponse
 from config import (
     LLM_BASE_URL,
     LLM_DEFAULT_MAX_TOKENS,
@@ -21,7 +22,7 @@ async def call_vireonix_llm(
     model: str = LLM_MODEL,
     temperature: float = LLM_DEFAULT_TEMPERATURE,
     max_tokens: int = LLM_DEFAULT_MAX_TOKENS,
-) -> dict:
+) -> LLMChatResponse:
     """
     Асинхронный запрос к Vireonix.
 
@@ -146,23 +147,23 @@ async def call_vireonix_llm(
             detail="LLM response does not contain message content",
         )
 
-    return {
-        "request_id": request_id,
-        "requested_model": model,
-        "returned_model": data.get("model"),
-        "answer": content,
-        "reasoning": message.get("reasoning_content"),
-        "finish_reason": choice.get("finish_reason"),
-        "usage": data.get("usage"),
-        "latency_ms": round(
+    return LLMChatResponse(
+        request_id=request_id,
+        requested_model=model,
+        returned_model=data.get("model"),
+        answer=content,
+        reasoning=message.get("reasoning_content"),
+        finish_reason=choice.get("finish_reason"),
+        usage=data.get("usage"),
+        latency_ms=round(
             latency_ms,
             2,
         ),
-    }
+    )
 
 
 def build_scoring_explanation_prompt(
-    prediction: dict,
+    prediction: PredictionResponse,
 ) -> str:
     """
     Формирует промпт только из результата
@@ -175,10 +176,10 @@ def build_scoring_explanation_prompt(
     return (
         "Сформируй краткое объяснение для оператора банка "
         "по результату алгоритмического агроскоринга.\n\n"
-        f"risk_score: {prediction['risk_score']}\n"
-        f"risk_level: {prediction['risk_level']}\n"
-        f"базовая рекомендация: {prediction['recommendation']}\n"
-        f"версия скоринговой модели: {prediction['model_version']}\n\n"
+        f"risk_score: {prediction.risk_score}\n"
+        f"risk_level: {prediction.risk_level}\n"
+        f"базовая рекомендация: {prediction.recommendation}\n"
+        f"версия скоринговой модели: {prediction.model_version}\n\n"
         "Требования к ответу:\n"
         "1. 2-4 предложения.\n"
         "2. Не меняй категорию риска.\n"

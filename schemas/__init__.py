@@ -3,8 +3,9 @@ from .batch import (
     BatchPredictionResponse,
     BatchRequest,
 )
+from .demo import SeedResponse
 from .farm import FarmRequest, PredictionResponse
-from .health import HealthResponse
+from .health import HealthResponse, RootResponse
 from .llm import (
     LLMChatRequest,
     LLMChatResponse,
@@ -12,6 +13,7 @@ from .llm import (
 )
 from .model import ModelInfoResponse
 from .pagination import PaginatedPredictionsResponse, PaginationMeta
+from .queue import QueueStatusResponse
 
 __all__ = [
     "BatchItemResponse",
@@ -26,4 +28,7 @@ __all__ = [
     "PaginationMeta",
     "PredictWithLLMResponse",
     "PredictionResponse",
+    "QueueStatusResponse",
+    "RootResponse",
+    "SeedResponse",
 ]

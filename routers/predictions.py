@@ -8,7 +8,11 @@ from db.predictions import (
     get_predictions_by_weekday_page,
     get_predictions_from_db,
 )
-from schemas import PaginatedPredictionsResponse, PredictionResponse
+from schemas import (
+    PaginatedPredictionsResponse,
+    PaginationMeta,
+    PredictionResponse,
+)
 
 router = APIRouter(tags=["predictions"])
 
@@ -172,18 +176,18 @@ async def get_predictions_by_weekday(
             )
         )
 
-    return {
-        "data": data,
-        "meta": {
-            "weekday": weekday,
-            "current_page": page,
-            "per_page": per_page,
-            "total_pages": total_pages,
-            "total_items": total_items,
-            "next_page": next_page,
-            "prev_page": prev_page,
-        },
-    }
+    return PaginatedPredictionsResponse(
+        data=data,
+        meta=PaginationMeta(
+            weekday=weekday,
+            current_page=page,
+            per_page=per_page,
+            total_pages=total_pages,
+            total_items=total_items,
+            next_page=next_page,
+            prev_page=prev_page,
+        ),
+    )
 
 
 @router.get(

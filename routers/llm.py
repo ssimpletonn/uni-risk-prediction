@@ -143,7 +143,7 @@ async def predict_with_llm(
         max_tokens=LLM_DEFAULT_MAX_TOKENS,
     )
 
-    return {
-        "prediction": prediction,
-        "llm": llm_result,
-    }
+    return PredictWithLLMResponse(
+        prediction=prediction,
+        llm=llm_result,
+    )

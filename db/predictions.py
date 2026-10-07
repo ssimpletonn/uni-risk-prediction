@@ -6,6 +6,7 @@ import aiosqlite
 from fastapi import HTTPException, status
 
 from db.connection import get_db
+from schemas import BatchItemResponse, PredictionResponse
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ def _storage_unavailable() -> HTTPException:
 
 
 async def save_prediction(
-    result: dict,
+    result: PredictionResponse,
     source: str,
 ) -> None:
     """
@@ -47,12 +48,12 @@ async def save_prediction(
             await db.execute(
                 INSERT_PREDICTION_SQL,
                 (
-                    result["request_id"],
-                    result["farm_id"],
-                    result["risk_score"],
-                    result["risk_level"],
-                    result["recommendation"],
-                    result["model_version"],
+                    result.request_id,
+                    result.farm_id,
+                    result.risk_score,
+                    result.risk_level,
+                    result.recommendation,
+                    result.model_version,
                     source,
                 ),
             )
@@ -62,7 +63,7 @@ async def save_prediction(
     except aiosqlite.Error as exc:
         logger.exception(
             "Database write error | request_id=%s",
-            result.get("request_id"),
+            result.request_id,
         )
 
         raise _storage_unavailable() from exc
@@ -70,7 +71,7 @@ async def save_prediction(
 
 async def save_predictions_batch(
     request_id: str,
-    items: List[dict],
+    items: List[BatchItemResponse],
 ) -> None:
     """
     Сохраняет весь batch через executemany()
@@ -80,11 +81,11 @@ async def save_predictions_batch(
     rows = [
         (
             request_id,
-            item["farm_id"],
-            item["risk_score"],
-            item["risk_level"],
-            item["recommendation"],
-            item["model_version"],
+            item.farm_id,
+            item.risk_score,
+            item.risk_level,
+            item.recommendation,
+            item.model_version,
             "batch",
         )
         for item in items
@@ -111,7 +112,7 @@ async def save_predictions_batch(
 async def get_predictions_from_db(
     limit: int,
     risk_level: Optional[str] = None,
-) -> List[dict]:
+) -> List[PredictionResponse]:
     """Возвращает историю прогнозов из SQLite."""
 
     try:
@@ -157,7 +158,7 @@ async def get_predictions_from_db(
             await cursor.close()
 
         return [
-            dict(row)
+            PredictionResponse(**dict(row))
             for row in rows
         ]
 
@@ -173,7 +174,7 @@ async def get_predictions_by_weekday_page(
     weekday_number: str,
     page: int,
     per_page: int,
-) -> tuple[List[dict], int, int]:
+) -> tuple[List[PredictionResponse], int, int]:
     """
     Возвращает одну страницу прогнозов для выбранного дня недели.
 
@@ -236,7 +237,7 @@ async def get_predictions_by_weekday_page(
         )
 
         return (
-            [dict(row) for row in rows],
+            [PredictionResponse(**dict(row)) for row in rows],
             total_items,
             total_pages,
         )
@@ -252,7 +253,7 @@ async def get_predictions_by_weekday_page(
 
 async def get_predictions_by_request_id(
     request_id: str,
-) -> List[dict]:
+) -> List[PredictionResponse]:
     """
     Возвращает все прогнозы, связанные с HTTP request_id.
 
@@ -282,7 +283,7 @@ async def get_predictions_by_request_id(
             await cursor.close()
 
         return [
-            dict(row)
+            PredictionResponse(**dict(row))
             for row in rows
         ]
 

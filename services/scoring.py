@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 
 from config import ALLOWED_REGIONS, MODEL_VERSION
-from schemas import FarmRequest
+from schemas import FarmRequest, PredictionResponse
 
 
 def calculate_risk(
@@ -77,16 +77,16 @@ def make_prediction_result(
     data: FarmRequest,
     score: float,
     request_id: str,
-) -> dict:
+) -> PredictionResponse:
     level = get_risk_level(
         score
     )
 
-    return {
-        "request_id": request_id,
-        "farm_id": data.farm_id,
-        "risk_score": score,
-        "risk_level": level,
-        "recommendation": get_recommendation(level),
-        "model_version": MODEL_VERSION,
-    }
+    return PredictionResponse(
+        request_id=request_id,
+        farm_id=data.farm_id,
+        risk_score=score,
+        risk_level=level,
+        recommendation=get_recommendation(level),
+        model_version=MODEL_VERSION,
+    )

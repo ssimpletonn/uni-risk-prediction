@@ -12,13 +12,13 @@ router = APIRouter(tags=["model"])
     summary="Информация о модели",
 )
 async def model_info():
-    return {
-        "model_name": MODEL_NAME,
-        "model_version": MODEL_VERSION,
-        "model_type": MODEL_TYPE,
-        "status": (
+    return ModelInfoResponse(
+        model_name=MODEL_NAME,
+        model_version=MODEL_VERSION,
+        model_type=MODEL_TYPE,
+        status=(
             "ready"
             if MODEL_READY
             else "unavailable"
         ),
-    }
+    )

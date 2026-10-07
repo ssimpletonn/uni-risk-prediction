@@ -16,8 +16,10 @@ from db.predictions import save_prediction, save_predictions_batch
 from schemas import (
     BatchPredictionResponse,
     BatchRequest,
+    BatchItemResponse,
     FarmRequest,
     PredictionResponse,
+    QueueStatusResponse,
 )
 from services.inference import (
     InferenceTask,
@@ -154,15 +156,15 @@ async def batch_predict(
         )
 
         response_items.append(
-            {
-                "farm_id": data.farm_id,
-                "risk_score": score,
-                "risk_level": level,
-                "recommendation": get_recommendation(
+            BatchItemResponse(
+                farm_id=data.farm_id,
+                risk_score=score,
+                risk_level=level,
+                recommendation=get_recommendation(
                     level
                 ),
-                "model_version": MODEL_VERSION,
-            }
+                model_version=MODEL_VERSION,
+            )
         )
 
     # Сохраняем весь batch одной транзакцией.
@@ -176,17 +178,17 @@ async def batch_predict(
         - start_time
     ) * 1000
 
-    return {
-        "request_id": request_id,
-        "batch_size": len(
+    return BatchPredictionResponse(
+        request_id=request_id,
+        batch_size=len(
             batch.items
         ),
-        "processing_time_ms": round(
+        processing_time_ms=round(
             processing_time_ms,
             2,
         ),
-        "items": response_items,
-    }
+        items=response_items,
+    )
 
 
 @router.post(
@@ -301,13 +303,14 @@ async def predict_queued(
 
 @router.get(
     "/queue-status",
+    response_model=QueueStatusResponse,
     summary="Состояние очереди и настройки batching",
 )
 async def queue_status():
-    return {
-        "queue_size": inference_queue.qsize(),
-        "queue_max_size": QUEUE_MAX_SIZE,
-        "max_batch_size": MAX_BATCH_SIZE,
-        "max_batch_wait_ms": MAX_BATCH_WAIT_MS,
-        "inference_timeout_seconds": INFERENCE_TIMEOUT_SECONDS,
-    }
+    return QueueStatusResponse(
+        queue_size=inference_queue.qsize(),
+        queue_max_size=QUEUE_MAX_SIZE,
+        max_batch_size=MAX_BATCH_SIZE,
+        max_batch_wait_ms=MAX_BATCH_WAIT_MS,
+        inference_timeout_seconds=INFERENCE_TIMEOUT_SECONDS,
+    )

@@ -173,7 +173,7 @@ async def get_predictions_from_db(
 async def get_predictions_by_weekday_page(
     weekday_number: str,
     page: int,
-    per_page: int,
+    size: int,
 ) -> tuple[List[PredictionResponse], int, int]:
     """
     Возвращает одну страницу прогнозов для выбранного дня недели.
@@ -182,11 +182,11 @@ async def get_predictions_by_weekday_page(
         LIMIT ? OFFSET ?
 
     Пример:
-        page=1, per_page=5 -> LIMIT 5 OFFSET 0
-        page=2, per_page=5 -> LIMIT 5 OFFSET 5
+        page=1, size=5 -> LIMIT 5 OFFSET 0
+        page=2, size=5 -> LIMIT 5 OFFSET 5
     """
 
-    offset = (page - 1) * per_page
+    offset = (page - 1) * size
 
     try:
         async with get_db() as db:
@@ -207,7 +207,7 @@ async def get_predictions_by_weekday_page(
                 """,
                 (
                     weekday_number,
-                    per_page,
+                    size,
                     offset,
                 ),
             )
@@ -231,7 +231,7 @@ async def get_predictions_by_weekday_page(
         total_items = row[0]
 
         total_pages = (
-            math.ceil(total_items / per_page)
+            math.ceil(total_items / size)
             if total_items > 0
             else 0
         )

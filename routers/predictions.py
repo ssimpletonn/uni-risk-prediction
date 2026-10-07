@@ -101,7 +101,7 @@ async def get_predictions_by_weekday(
         description="Номер страницы",
     ),
 
-    per_page: int = Query(
+    size: int = Query(
         default=5,
         ge=1,
         le=100,
@@ -110,7 +110,7 @@ async def get_predictions_by_weekday(
 ):
     """
     Пример:
-        GET /predictions/by-weekday?weekday=monday&page=1&per_page=5
+        GET /predictions/by-weekday?weekday=monday&page=1&size=5
 
     Вернет первые 5 записей для понедельника.
     """
@@ -134,7 +134,7 @@ async def get_predictions_by_weekday(
     ) = await get_predictions_by_weekday_page(
         weekday_number=WEEKDAY_MAP[weekday],
         page=page,
-        per_page=per_page,
+        size=size,
     )
 
     # Если записи существуют, но номер страницы слишком большой.
@@ -161,7 +161,7 @@ async def get_predictions_by_weekday(
             request.url.include_query_params(
                 weekday=weekday,
                 page=page + 1,
-                per_page=per_page,
+                size=size,
             )
         )
 
@@ -172,7 +172,7 @@ async def get_predictions_by_weekday(
             request.url.include_query_params(
                 weekday=weekday,
                 page=page - 1,
-                per_page=per_page,
+                size=size,
             )
         )
 
@@ -181,7 +181,7 @@ async def get_predictions_by_weekday(
         meta=PaginationMeta(
             weekday=weekday,
             current_page=page,
-            per_page=per_page,
+            size=size,
             total_pages=total_pages,
             total_items=total_items,
             next_page=next_page,

@@ -8,7 +8,7 @@ from schemas.farm import PredictionResponse
 class PaginationMeta(BaseModel):
     weekday: str
     current_page: int
-    per_page: int
+    size: int
     total_pages: int
     total_items: int
     next_page: Optional[str]
